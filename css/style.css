@@ -1,0 +1,91 @@
+*{margin:0;padding:0;box-sizing:border-box;}
+body, html{width:100%;height:100%;font-family:'Satoshi',sans-serif;}
+
+/* Черный экран до клика/Enter */
+#overlay {
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#000;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  cursor:pointer;
+  z-index:9999;
+  text-align:center;
+}
+
+/* Основной контент */
+body.loaded {
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  text-align:center;
+  color:#fff;
+  background:#000;
+}
+
+video.bg {
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  z-index:-1;
+}
+
+.container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.username{
+  font-size:40px;
+  font-weight:700;
+  text-shadow:0 0 15px #fff;
+}
+
+.desc{
+  font-size:18px;
+  margin-top:10px;
+  opacity:0.9;
+}
+
+.location{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-top:5px;
+  opacity:0.9;
+}
+
+.location svg{
+  width:16px;
+  height:16px;
+  fill:#00ffff;
+  filter:drop-shadow(0 0 4px #00ffff) drop-shadow(0 0 6px #00ffff);
+}
+
+.links{
+  display:flex;
+  gap:30px;
+  margin-top:30px;
+}
+
+.links a svg{
+  width:32px;
+  height:32px;
+  fill:#fff;
+  transition:.3s;
+  filter:drop-shadow(0 0 4px #fff);
+}
+
+.links a:hover svg{
+  fill:#00ffff;
+  filter:drop-shadow(0 0 6px #00ffff);
+}
