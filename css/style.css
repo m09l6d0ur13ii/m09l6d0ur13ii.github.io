@@ -1,7 +1,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body, html{width:100%;height:100%;font-family:'Satoshi',sans-serif;}
 
-/* Черный экран до клика/Enter */
+/* Overlay */
 #overlay {
   position:fixed;
   top:0;left:0;
@@ -19,14 +19,13 @@ body, html{width:100%;height:100%;font-family:'Satoshi',sans-serif;}
 
 /* Основной контент */
 body.loaded {
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-  text-align:center;
   color:#fff;
   background:#000;
+  overflow-x:hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 video.bg {
@@ -35,6 +34,7 @@ video.bg {
   width:100%;height:100%;
   object-fit:cover;
   z-index:-1;
+  filter: brightness(0.4);
 }
 
 .container{
@@ -42,6 +42,9 @@ video.bg {
   flex-direction:column;
   align-items:center;
   justify-content:center;
+  text-align:center;
+  padding:20px;
+  min-height: 100vh;
 }
 
 .username{
@@ -67,25 +70,56 @@ video.bg {
 .location svg{
   width:16px;
   height:16px;
-  fill:#00ffff;
-  filter:drop-shadow(0 0 4px #00ffff) drop-shadow(0 0 6px #00ffff);
+  fill:#ffffff;
 }
 
+/* Соц кнопки */
 .links{
   display:flex;
   gap:30px;
   margin-top:30px;
 }
 
+.links a{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
 .links a svg{
   width:32px;
   height:32px;
-  fill:#fff;
   transition:.3s;
-  filter:drop-shadow(0 0 4px #fff);
 }
 
 .links a:hover svg{
-  fill:#00ffff;
   filter:drop-shadow(0 0 6px #00ffff);
+}
+
+.links a.third-btn svg {
+  width: 38px;
+  height: 38px;
+  transform: translateY(-5px);
+}
+
+/* Кнопка мьют */
+#muteBtn {
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:10000;
+  background:rgba(0,0,0,0.5);
+  color:#fff;
+  border:none;
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  font-size:24px;
+  cursor:pointer;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
 }
