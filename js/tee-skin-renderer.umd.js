@@ -1,1 +1,340 @@
-(function(r,a){typeof exports=="object"&&typeof module<"u"?a(exports):typeof define=="function"&&define.amd?define(["exports"],a):(r=typeof globalThis<"u"?globalThis:r||self,a(r.TeeSkinRenderer={}))})(this,function(r){"use strict";var S=Object.defineProperty;var x=(r,a,u)=>a in r?S(r,a,{enumerable:!0,configurable:!0,writable:!0,value:u}):r[a]=u;var d=(r,a,u)=>(x(r,typeof a!="symbol"?a+"":a,u),u);function a(o){return[(o>>16&255)*360/255,(o>>8&255)*100/255,((o&255)/2+128)*100/255]}function u(o){return g(a(o))}function g(o,e=255){const s=o[0]/360,t=o[1]/100,i=o[2]/100;let n,l,h;if(t===0)return h=i*255,[h,h,h,e];i<.5?n=i*(1+t):n=i+t-i*t;const _=2*i-n,c=[0,0,0,e];for(let f=0;f<3;f++)l=s+1/3*-(f-1),l<0&&l++,l>1&&l--,6*l<1?h=_+(n-_)*6*l:2*l<1?h=n:3*l<2?h=_+(n-_)*(2/3-l)*6:h=_,c[f]=h*255;return c}const M=Object.freeze(Object.defineProperty({__proto__:null,convertHslToRgba:g,convertTeeColorToHsl:a,convertTeeColorToRgba:u},Symbol.toStringTag,{value:"Module"}));function C(o,e,s=!1){let t;return function(){let i=this,n=arguments;clearTimeout(t),s&&!t&&o.apply(i,n),t=setTimeout(function(){t=void 0,s||o.apply(i,n)},e)}}function k(o,e=300){let s,t,i;return function(){const n=this,l=arguments;s?(clearTimeout(t),t=setTimeout(()=>{Date.now()-i>=e&&(o.apply(n,l),i=Date.now())},Math.max(e-(Date.now()-i),0))):(o.apply(n,l),i=Date.now(),s=!0)}}function w(o){return new Promise((e,s)=>{const t=new Image;t.crossOrigin="anonymous",t.addEventListener("error",s),t.addEventListener("load",i=>{Promise.resolve(e(i.target)).then(()=>{t.remove()})}),t.src=o})}function L(o,...e){e=e!==void 0?e:[],document.readyState!=="loading"?o(...e):document.addEventListener("DOMContentLoaded",()=>{o(...e)})}const E=Object.freeze(Object.defineProperty({__proto__:null,debounce:C,domReady:L,loadImage:w,throttle:k},Symbol.toStringTag,{value:"Module"}));class b{constructor(e,s){d(this,"_container");d(this,"_eyes");d(this,"_colorBody");d(this,"_colorFeet");d(this,"_useCustomColor");d(this,"_followMouseFn",null);d(this,"_skinUrl");d(this,"_skinBitmap",null);d(this,"_skinLoading",!1);d(this,"_skinLoadingPromise",null);d(this,"_skinLoadedCallback",null);d(this,"_offscreen",null);d(this,"_offscreenContext",null);d(this,"_image",null);d(this,"_debounceUpdateTeeImage");if(e.tee!==void 0)throw new Error("TeeRenderer already initialized on this container");Object.defineProperty(e,"tee",{value:this,writable:!1}),this._container=e,this._colorBody=s.colorBody,this._colorFeet=s.colorFeet,this._useCustomColor=s.useCustomColor!==void 0?s.useCustomColor:s.colorBody!==void 0||s.colorFeet!==void 0,this._eyes=s.eyes??"normal",this._skinUrl=s.skinUrl,this._container.classList.add("tee_initialized"),this._container.classList.remove("tee_initializing"),this._debounceUpdateTeeImage=C(this.updateTeeImage,10),this.addEventListener("tee:rendered",()=>{this._container.classList.add("tee_rendered")},{once:!0}),this.followMouse=s.followMouse===!0,this.loadSkin(this._skinUrl,!1)}get container(){return this._container}get colorBody(){return this._colorBody}set colorBody(e){e===void 0&&delete this._container.dataset.colorBody,this._colorBody=Number(e),this.update()}get colorBodyHsl(){return this._colorBody===void 0?void 0:a(this._colorBody)}get colorBodyRgba(){return this._colorBody===void 0?void 0:u(this._colorBody)}get colorFeet(){return this._colorFeet}set colorFeet(e){e===void 0&&delete this._container.dataset.colorFeet,this._colorFeet=Number(e),this.update()}get colorFeetHsl(){return this._colorFeet===void 0?void 0:a(this._colorFeet)}get colorFeetRgba(){return this._colorFeet===void 0?void 0:u(this._colorFeet)}get useCustomColor(){return this._useCustomColor}set useCustomColor(e){this._container.dataset.useCustomColor=e?"true":"false",this._useCustomColor=e,this.update()}get eyes(){return this._eyes}set eyes(e){this._eyes!==e&&(this._eyes=e,this._container.dataset.eyes=e)}get followMouse(){return this._followMouseFn!==null}set followMouse(e){this.followMouse!==e&&(e?(this._followMouseFn=this.mouseFollowThrottleCallbackFactory(),document.addEventListener("mousemove",this._followMouseFn),this._container.dataset.followMouse="true"):(document.removeEventListener("mousemove",this._followMouseFn),this._followMouseFn=null,this._container.dataset.followMouse="false"))}mouseFollowThrottleCallbackFactory(){return k(s=>{const t=this._container.getBoundingClientRect(),i=s.clientX-(t.x+t.width/2),n=s.clientY-(t.y+t.height/2-t.height*.125),l=Math.atan2(n,i),h=Math.cos(l)*.125*t.width,_=Math.sin(l)*.1*t.height;this._container.eyes.style.transform=`translate(${h.toFixed(4)}px, ${_.toFixed(4)}px)`},20)}get skinUrl(){return this._skinUrl}set skinUrl(e){this.loadSkin(e,!0)}get skinBitmap(){return this._skinBitmap}setSkinVariableValue(e){this._container.style.setProperty("--skin",e)}updateTeeImage(){if(this._skinBitmap!==null){if(this._offscreen===null?(this._offscreen=new OffscreenCanvas(this._skinBitmap.width,this._skinBitmap.height),this._offscreenContext=this._offscreen.getContext("2d",{willReadFrequently:!0})):((this._offscreen.width!==this._skinBitmap.width||this._offscreen.height!==this._skinBitmap.height)&&(this._offscreen.width=this._skinBitmap.width,this._offscreen.height=this._skinBitmap.height),this._offscreenContext.clearRect(0,0,this._offscreen.width,this._offscreen.height)),this._offscreenContext.drawImage(this._skinBitmap,0,0),this.useCustomColor){const e=this.colorBodyRgba||u(0),s=this.colorFeetRgba||u(0),t=this._offscreenContext.getImageData(0,0,this._offscreen.width,this._offscreen.height),i=t.data,n=this._offscreen.width*(6/8),l=this._offscreen.width*(8/8),h=this._offscreen.height*(1/4),_=this._offscreen.height*(3/4);for(let c=0;c<i.length;c+=4){const f=c/4%this._offscreen.width,T=Math.floor(c/4/this._offscreen.width),p=(i[c]+i[c+1]+i[c+2])/3,m=f>=n&&f<=l&&T>=h&&T<=_?s:e;i[c]=p*m[0]/255,i[c+1]=p*m[1]/255,i[c+2]=p*m[2]/255,i[c+3]=i[c+3]*m[3]/255}this._offscreenContext.putImageData(t,0,0)}this._offscreen.convertToBlob().then(e=>{const s=URL.createObjectURL(e),t=this._image||(this._image=new Image);t.onload=()=>{this.setSkinVariableValue(`url('${s}')`),this.dispatchEvent("tee:rendered")},t.src=s})}}dispatchEvent(...e){this._container.dispatchEvent(new CustomEvent(e[0],{detail:{tee:this,payload:e[1]||void 0}}))}addEventListener(e,s,t){this._container.addEventListener(e,s,t)}removeEventListener(e,s,t){this._container.removeEventListener(e,s,t)}update(){this._debounceUpdateTeeImage()}loadSkin(e,s){if(this._skinLoading)this._skinLoadedCallback=()=>this.loadSkin(e,s);else{const t=i=>{this._skinLoadingPromise=null,this._skinLoading=!1,this.dispatchEvent("tee:skin-loaded",{skin:e,success:i}),s&&this.update(),this._skinLoadedCallback&&this._skinLoadedCallback(),this._skinLoadedCallback=null};this._skinLoading=!0,this._skinLoadedCallback=null,this._skinLoadingPromise=w(e).then(async i=>{this._skinBitmap=await createImageBitmap(i),this._skinUrl=i.src,this._container.dataset.skin=this._skinUrl,t(!0)}).catch(()=>{console.warn(`TeeRenderer: cannot load skin '${e}'`),t(!1)})}return this._skinLoadingPromise}}function B(o){const e=document.createElement("div"),s=document.createElement("div"),t=document.createElement("div"),i=document.createElement("div"),n=document.createElement("div");e.classList.add("tee__eyes"),s.classList.add("tee__foot"),s.classList.add("tee__foot_left"),s.classList.add("tee__foot_outline"),t.classList.add("tee__foot"),t.classList.add("tee__foot_left"),i.classList.add("tee__foot"),i.classList.add("tee__foot_right"),i.classList.add("tee__foot_outline"),n.classList.add("tee__foot"),n.classList.add("tee__foot_right"),o.replaceChildren(),o.appendChild(e),o.appendChild(s),o.appendChild(t),o.appendChild(i),o.appendChild(n),o.eyes=e}function y(o,e){return new Promise((s,t)=>{setTimeout(()=>{t()},2e4);try{o.classList.add("tee_initializing"),B(o),new b(o,e).addEventListener("tee:skin-loaded",n=>{s(n.detail.tee)},{once:!0})}catch{o.classList.remove("tee_initializing"),t()}})}async function v(o=!0){const s=[...document.querySelectorAll(".tee:not(.tee_initialized):not(.tee_initializing")].map(t=>y(t,{colorBody:parseInt(t.dataset.colorBody)||void 0,colorFeet:parseInt(t.dataset.colorFeet)||void 0,useCustomColor:t.dataset.useCustomColor!==void 0?t.dataset.useCustomColor==="true":void 0,eyes:t.dataset.eyes,followMouse:t.dataset.followMouse!==void 0?t.dataset.followMouse==="true":void 0,skinUrl:t.dataset.skin}));o?await Promise.allSettled(s).then(t=>{t.forEach(i=>{if(i.status==="fulfilled")try{i.value.update()}catch{}})}):s.forEach(t=>{t.then(i=>i.update())})}async function F(o){const e=document.createElement("div");o.colorBody!==void 0&&(e.dataset.colorBody=o.colorBody+""),o.colorFeet!==void 0&&(e.dataset.colorFeet=o.colorFeet+""),o.useCustomColor!==void 0&&(e.dataset.useCustomColor=o.useCustomColor?"true":"false"),o.eyes!==void 0&&(e.dataset.eyes=o.eyes),o.followMouse!==void 0&&(e.dataset.followMouse=o.followMouse?"true":"false"),e.dataset.skin=o.skinUrl,e.classList.add("tee");const s=await y(e,o);return s.update(),s.container}const R=Object.freeze(Object.defineProperty({__proto__:null,TeeRenderer:b,createAsync:F,createContainerElements:B,createRendererAsync:y,initializeAsync:v},Symbol.toStringTag,{value:"Module"}));L(()=>{v()}),r.color=M,r.createAsync=F,r.helpers=E,r.init=v,r.renderer=R,Object.defineProperty(r,Symbol.toStringTag,{value:"Module"})});
+(function(global, factory) {
+  typeof exports === "object" && typeof module !== "undefined"
+    ? factory(exports)
+    : typeof define === "function" && define.amd
+      ? define(["exports"], factory)
+      : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.TeeSkinRenderer = {}));
+})(this, function(exports) {
+  "use strict";
+
+  var defineProperty = Object.defineProperty;
+  var setProperty = (obj, key, value) =>
+    key in obj
+      ? defineProperty(obj, key, { enumerable: true, configurable: true, writable: true, value: value })
+      : (obj[key] = value);
+
+  var setAndReturn = (obj, key, value) => (setProperty(obj, typeof key !== "symbol" ? key + "" : key, value), value);
+
+  function teeColorToHsl(color) {
+    return [
+      ((color >> 16) & 255) * 360 / 255,
+      ((color >> 8) & 255) * 100 / 255,
+      ((color & 255) / 2 + 128) * 100 / 255
+    ];
+  }
+
+  function teeColorToRgba(color) {
+    return hslToRgba(teeColorToHsl(color));
+  }
+
+  function hslToRgba(hsl, alpha = 255) {
+    const h = hsl[0] / 360, s = hsl[1] / 100, l = hsl[2] / 100;
+    let c, x, m, r, g, b;
+    if (s === 0) return [l * 255, l * 255, l * 255, alpha];
+    let n = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    let p = 2 * l - n;
+    let rgb = [];
+    for (let i = 0; i < 3; i++) {
+      let t = h + (1 / 3) * -(i - 1);
+      if (t < 0) t++;
+      if (t > 1) t--;
+      if (6 * t < 1) r = p + (n - p) * 6 * t;
+      else if (2 * t < 1) r = n;
+      else if (3 * t < 2) r = p + (n - p) * (2 / 3 - t) * 6;
+      else r = p;
+      rgb[i] = r * 255;
+    }
+    rgb[3] = alpha;
+    return rgb;
+  }
+
+  const colorUtils = Object.freeze(
+    Object.defineProperty(
+      { __proto__: null, convertHslToRgba: hslToRgba, convertTeeColorToHsl: teeColorToHsl, convertTeeColorToRgba: teeColorToRgba },
+      Symbol.toStringTag,
+      { value: "Module" }
+    )
+  );
+
+  function debounce(fn, delay, immediate = false) {
+    let timer;
+    return function() {
+      const context = this, args = arguments;
+      clearTimeout(timer);
+      if (immediate && !timer) fn.apply(context, args);
+      timer = setTimeout(() => { if (!immediate) fn.apply(context, args); timer = undefined; }, delay);
+    };
+  }
+
+  function throttle(fn, limit = 300) {
+    let lastCall = 0, timer;
+    return function() {
+      const context = this, args = arguments;
+      if (lastCall) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (Date.now() - lastCall >= limit) { fn.apply(context, args); lastCall = Date.now(); }
+        }, Math.max(limit - (Date.now() - lastCall), 0));
+      } else { fn.apply(context, args); lastCall = Date.now(); }
+    };
+  }
+
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.addEventListener("error", reject);
+      img.addEventListener("load", e => {
+        Promise.resolve(resolve(e.target)).then(() => img.remove());
+      });
+      img.src = url;
+    });
+  }
+
+  function domReady(fn, args = []) {
+    document.readyState !== "loading" ? fn(...args) : document.addEventListener("DOMContentLoaded", () => { fn(...args); });
+  }
+
+  const domUtils = Object.freeze(
+    Object.defineProperty({ __proto__: null, debounce, domReady, loadImage, throttle }, Symbol.toStringTag, { value: "Module" })
+  );
+
+  class TeeRenderer {
+    constructor(container, options) {
+      setAndReturn(this, "_container");
+      setAndReturn(this, "_eyes");
+      setAndReturn(this, "_colorBody");
+      setAndReturn(this, "_colorFeet");
+      setAndReturn(this, "_useCustomColor");
+      setAndReturn(this, "_followMouseFn", null);
+      setAndReturn(this, "_skinUrl");
+      setAndReturn(this, "_skinBitmap", null);
+      setAndReturn(this, "_skinLoading", false);
+      setAndReturn(this, "_skinLoadingPromise", null);
+      setAndReturn(this, "_skinLoadedCallback", null);
+      setAndReturn(this, "_offscreen", null);
+      setAndReturn(this, "_offscreenContext", null);
+      setAndReturn(this, "_image", null);
+      setAndReturn(this, "_debounceUpdateTeeImage");
+
+      if (container.tee !== undefined) throw new Error("TeeRenderer already initialized on this container");
+      Object.defineProperty(container, "tee", { value: this, writable: false });
+      this._container = container;
+      this._colorBody = options.colorBody;
+      this._colorFeet = options.colorFeet;
+      this._useCustomColor = options.useCustomColor !== undefined ? options.useCustomColor : options.colorBody !== undefined || options.colorFeet !== undefined;
+      this._eyes = options.eyes ?? "normal";
+      this._skinUrl = options.skinUrl;
+      this._container.classList.add("tee_initialized");
+      this._container.classList.remove("tee_initializing");
+      this._debounceUpdateTeeImage = debounce(this.updateTeeImage, 10);
+      this.addEventListener("tee:rendered", () => { this._container.classList.add("tee_rendered"); }, { once: true });
+      this.followMouse = options.followMouse === true;
+      this.loadSkin(this._skinUrl, false);
+    }
+
+    get container() { return this._container; }
+    get colorBody() { return this._colorBody; }
+    set colorBody(val) { val === undefined && delete this._container.dataset.colorBody; this._colorBody = Number(val); this.update(); }
+    get colorBodyHsl() { return this._colorBody === undefined ? undefined : teeColorToHsl(this._colorBody); }
+    get colorBodyRgba() { return this._colorBody === undefined ? undefined : teeColorToRgba(this._colorBody); }
+    get colorFeet() { return this._colorFeet; }
+    set colorFeet(val) { val === undefined && delete this._container.dataset.colorFeet; this._colorFeet = Number(val); this.update(); }
+    get colorFeetHsl() { return this._colorFeet === undefined ? undefined : teeColorToHsl(this._colorFeet); }
+    get colorFeetRgba() { return this._colorFeet === undefined ? undefined : teeColorToRgba(this._colorFeet); }
+    get useCustomColor() { return this._useCustomColor; }
+    set useCustomColor(val) { this._container.dataset.useCustomColor = val ? "true" : "false"; this._useCustomColor = val; this.update(); }
+    get eyes() { return this._eyes; }
+    set eyes(val) { if (this._eyes !== val) { this._eyes = val; this._container.dataset.eyes = val; } }
+    get followMouse() { return this._followMouseFn !== null; }
+    set followMouse(val) {
+      if (this.followMouse !== val) {
+        if (val) {
+          this._followMouseFn = this.mouseFollowThrottleCallbackFactory();
+          document.addEventListener("mousemove", this._followMouseFn);
+          this._container.dataset.followMouse = "true";
+        } else {
+          document.removeEventListener("mousemove", this._followMouseFn);
+          this._followMouseFn = null;
+          this._container.dataset.followMouse = "false";
+        }
+      }
+    }
+
+    mouseFollowThrottleCallbackFactory() {
+      return throttle(e => {
+        const rect = this._container.getBoundingClientRect();
+        const dx = e.clientX - (rect.x + rect.width / 2);
+        const dy = e.clientY - (rect.y + rect.height / 2 - rect.height * 0.125);
+        const angle = Math.atan2(dy, dx);
+        const offsetX = Math.cos(angle) * 0.125 * rect.width;
+        const offsetY = Math.sin(angle) * 0.1 * rect.height;
+        this._container.eyes.style.transform = `translate(${offsetX.toFixed(4)}px, ${offsetY.toFixed(4)}px)`;
+      }, 20);
+    }
+
+    get skinUrl() { return this._skinUrl; }
+    set skinUrl(val) { this.loadSkin(val, true); }
+    get skinBitmap() { return this._skinBitmap; }
+
+    setSkinVariableValue(val) { this._container.style.setProperty("--skin", val); }
+
+    updateTeeImage() {
+      if (!this._skinBitmap) return;
+      if (!this._offscreen) {
+        this._offscreen = new OffscreenCanvas(this._skinBitmap.width, this._skinBitmap.height);
+        this._offscreenContext = this._offscreen.getContext("2d", { willReadFrequently: true });
+      } else if (this._offscreen.width !== this._skinBitmap.width || this._offscreen.height !== this._skinBitmap.height) {
+        this._offscreen.width = this._skinBitmap.width;
+        this._offscreen.height = this._skinBitmap.height;
+      }
+
+      this._offscreenContext.clearRect(0, 0, this._offscreen.width, this._offscreen.height);
+      this._offscreenContext.drawImage(this._skinBitmap, 0, 0);
+
+      if (this.useCustomColor) {
+        const body = this.colorBodyRgba || teeColorToRgba(0);
+        const feet = this.colorFeetRgba || teeColorToRgba(0);
+        const imgData = this._offscreenContext.getImageData(0, 0, this._offscreen.width, this._offscreen.height);
+        const data = imgData.data;
+        const nStartX = this._offscreen.width * 6 / 8;
+        const nEndX = this._offscreen.width * 8 / 8;
+        const nStartY = this._offscreen.height / 4;
+        const nEndY = this._offscreen.height * 3 / 4;
+
+        for (let c = 0; c < data.length; c += 4) {
+          const x = c / 4 % this._offscreen.width;
+          const y = Math.floor(c / 4 / this._offscreen.width);
+          const gray = (data[c] + data[c + 1] + data[c + 2]) / 3;
+          const color = x >= nStartX && x <= nEndX && y >= nStartY && y <= nEndY ? feet : body;
+          data[c] = gray * color[0] / 255;
+          data[c + 1] = gray * color[1] / 255;
+          data[c + 2] = gray * color[2] / 255;
+          data[c + 3] = data[c + 3] * color[3] / 255;
+        }
+
+        this._offscreenContext.putImageData(imgData, 0, 0);
+      }
+
+      this._offscreen.convertToBlob().then(blob => {
+        const url = URL.createObjectURL(blob);
+        const img = this._image || (this._image = new Image());
+        img.onload = () => { this.setSkinVariableValue(`url('${url}')`); this.dispatchEvent("tee:rendered"); };
+        img.src = url;
+      });
+    }
+
+    dispatchEvent(...args) { this._container.dispatchEvent(new CustomEvent(args[0], { detail: { tee: this, payload: args[1] || undefined } })); }
+    addEventListener(...args) { this._container.addEventListener(...args); }
+    removeEventListener(...args) { this._container.removeEventListener(...args); }
+    update() { this._debounceUpdateTeeImage(); }
+
+    loadSkin(url, updateAfterLoad) {
+      if (this._skinLoading) {
+        this._skinLoadedCallback = () => this.loadSkin(url, updateAfterLoad);
+        return;
+      }
+
+      const done = success => {
+        this._skinLoadingPromise = null;
+        this._skinLoading = false;
+        this.dispatchEvent("tee:skin-loaded", { skin: url, success });
+        if (updateAfterLoad) this.update();
+        if (this._skinLoadedCallback) { this._skinLoadedCallback(); this._skinLoadedCallback = null; }
+      };
+
+      this._skinLoading = true;
+      this._skinLoadedCallback = null;
+      this._skinLoadingPromise = loadImage(url)
+        .then(async img => { this._skinBitmap = await createImageBitmap(img); this._skinUrl = img.src; this._container.dataset.skin = this._skinUrl; done(true); })
+        .catch(() => { console.warn(`TeeRenderer: cannot load skin '${url}'`); done(false); });
+
+      return this._skinLoadingPromise;
+    }
+  }
+
+  function createContainerElements(container) {
+    const eyes = document.createElement("div");
+    const footLeftOutline = document.createElement("div");
+    const footLeft = document.createElement("div");
+    const footRightOutline = document.createElement("div");
+    const footRight = document.createElement("div");
+
+    eyes.classList.add("tee__eyes");
+    footLeftOutline.classList.add("tee__foot", "tee__foot_left", "tee__foot_outline");
+    footLeft.classList.add("tee__foot", "tee__foot_left");
+    footRightOutline.classList.add("tee__foot", "tee__foot_right", "tee__foot_outline");
+    footRight.classList.add("tee__foot", "tee__foot_right");
+
+    container.replaceChildren();
+    container.appendChild(eyes);
+    container.appendChild(footLeftOutline);
+    container.appendChild(footLeft);
+    container.appendChild(footRightOutline);
+    container.appendChild(footRight);
+
+    container.eyes = eyes;
+  }
+
+  async function createRendererAsync(container, options) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(), 20000);
+      try {
+        container.classList.add("tee_initializing");
+        createContainerElements(container);
+        new TeeRenderer(container, options).addEventListener("tee:skin-loaded", e => resolve(e.detail.tee), { once: true });
+      } catch {
+        container.classList.remove("tee_initializing");
+        reject();
+      }
+    });
+  }
+
+  async function initializeAsync(autoUpdate = true) {
+    const containers = [...document.querySelectorAll(".tee:not(.tee_initialized):not(.tee_initializing)")].map(el =>
+      createRendererAsync(el, {
+        colorBody: parseInt(el.dataset.colorBody) || undefined,
+        colorFeet: parseInt(el.dataset.colorFeet) || undefined,
+        useCustomColor: el.dataset.useCustomColor !== undefined ? el.dataset.useCustomColor === "true" : undefined,
+        eyes: el.dataset.eyes,
+        followMouse: el.dataset.followMouse !== undefined ? el.dataset.followMouse === "true" : undefined,
+        skinUrl: el.dataset.skin
+      })
+    );
+
+    if (autoUpdate) {
+      await Promise.allSettled(containers).then(results => {
+        results.forEach(r => { if (r.status === "fulfilled") try { r.value.update(); } catch {} });
+      });
+    } else {
+      containers.forEach(p => p.then(r => r.update()));
+    }
+  }
+
+  async function createAsync(options) {
+    const container = document.createElement("div");
+    if (options.colorBody !== undefined) container.dataset.colorBody = options.colorBody + "";
+    if (options.colorFeet !== undefined) container.dataset.colorFeet = options.colorFeet + "";
+    if (options.useCustomColor !== undefined) container.dataset.useCustomColor = options.useCustomColor ? "true" : "false";
+    if (options.eyes !== undefined) container.dataset.eyes = options.eyes;
+    if (options.followMouse !== undefined) container.dataset.followMouse = options.followMouse ? "true" : "false";
+    container.dataset.skin = options.skinUrl;
+    container.classList.add("tee");
+
+    const tee = await createRendererAsync(container, options);
+    tee.update();
+    return tee.container;
+  }
+
+  const rendererModule = Object.freeze(
+    Object.defineProperty({ __proto__: null, TeeRenderer, createAsync, createContainerElements, createRendererAsync, initializeAsync }, Symbol.toStringTag, { value: "Module" })
+  );
+
+  domReady(() => { initializeAsync(); });
+  exports.color = colorUtils;
+  exports.createAsync = createAsync;
+  exports.helpers = domUtils;
+  exports.init = initializeAsync;
+  exports.renderer = rendererModule;
+  Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+});
